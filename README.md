@@ -10,10 +10,10 @@ Clone and build [`crail-s3`]() using:
 mvn -DskipTests install
 ```
 
-Copy the jar file crail-storage-object-<version>.jar and its dependencies to `$CRAIL_HOME/jars/` and set the Yarn, Hadoop, Spark classpaths to include this directory or the jars in this directory.
-The Spark environment needs to have access to the Crail jar files to allow accessing the Crail filesystem.
+Copy the jar file crail-storage-object-<version>.jar and its dependencies to `$CRAIL_HOME/jars/` and set the Yarn, Hadoop, Spark classpaths to include this directory or the jars in the directory.
+At least the Spark execution environment needs to have access to the Crail jar files to allow accessing data in the Crail filesystem.
 
-Also make sure that there are no conflicting jar files in the Hadoop, Spark, and Crail deployments.
+Please make sure that there are no conflicting jar files in the Hadoop, Spark, and Crail deployments.
 Conflicting jar files indicate that different dependecy versions were used when compiling (e.g. Spark was compiled against hadoop-2.6, Crail against hadoop-2.8) and can cause unpredictable behavior.
 The script "script/validate\_deployment.sh" can be used to verify that the deployments do not contain conflicting jar files. 
 
@@ -25,34 +25,38 @@ You can override these values in `$CRAIL_HOME/conf/crail-site.conf`.
 The minimum configuration parameters required are the S3 credentials (s3accesskey, s3secretkey), endpoint(s) (s3endpoint), and object store datanode IP address (datanode).
 Other parameters that should be set in most cases include the storagelimit (how much data can be stored in the Object Tier), the S3\_REGION and S3\_BUCKET.
 
+
 ## Starting a crail-objectstore datanode 
-To create a Crail-S3 storage Tier, start a datanode as
+To start a new Crail-S3 storage Tier use:
 ```bash 
-$CRAIL_HOME/bin/crail datanode -t org.apache.crail.datanode.object.ObjectStoreTier
+$CRAIL_HOME/bin/crail datanode -t   com.ibm.crail.storage.object.ObjectStoreTier
 ```
-In order for a client to automatically connect to a new ObjectStore datanode
-type, you have to add the following class to your list of datanode types in the
-`$CRAIL_HOME/conf/crail-site.conf` file. An example of such entry is :
 
+To configure a Crail client to connect to the Crail S3 tier, you have to define the following entries in (`$CRAIL_HOME/conf/crail-site.conf`):
 ```bash
-crail.storage.types                 org.apache.crail.storage.object.ObjectStorageTier
-crail.storage.object.datanode       <ip address>
+crail.storage.types                     com.ibm.crail.storage.object.ObjectStorageTier
+crail.storage.object.datanode           <ip address>
+crail.storage.object.s3accesskey        <key>
+crail.storage.object.s3secretkey        <key>
+crail.storage.object.s3endpoit          <ip address>
 ```
+Alternatively, you can set a subset of the S3 paramenters using environment variables.
 
-Please note that crail.storage.types is a comma separated list of datanode **types** which defines the priority order in which the blocks of the datanodes are consumed. 
+Please note that crail.storage.types is a comma separated list of storage tier **types** which defines the priority order in which the storage tiers are filled. 
 
 ## Setting up automatic deployment
 To enable deployment via `$CRAIL_HOME/bin/start-crail.sh` use the following extension 
-in the crail slave file (`$CRAIL_HOME/conf/slave`.): 
+in the Crail slave file (`$CRAIL_HOME/conf/slaves`.): 
 
 ```bash
-hostname1 -t org.apache.crail.datanode.objectstore.ObjectStoreDataNode
+hostname1 -t com.ibm.crail.storage.object.ObjectStoreTier
 ...
 ```
+
 Note: A crail-objectstore datanode does not serve data requests from clients, but
 only registers the block device storage information to the namenode and translates
 block IDs to object IDs. Clients access directly the object store through one of 
-the configured endpoints and no data traffic traverses the datanode.
+the configured endpoints - no data traffic traverses the datanode.
 
 ## Persistency and concurency considerations
 Although data is stored persistently in the S3 object store, the Cral object tier does not current support recovering existing data upon restart. 
