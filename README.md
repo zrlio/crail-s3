@@ -19,8 +19,7 @@ The script "script/validate\_deployment.sh" can be used to verify that the deplo
 
 
 ## Configuration parameters
-All parameters accepted by the Object Tier are defined in ObjectStoreDataNode.java together with their defaut values. 
-You can override these values in `$CRAIL_HOME/conf/crail-site.conf`.
+All parameters accepted by the Crail-S3 object tier are defined in ObjectStoreDataNode.java together with their defaut values. You can override these values in `$CRAIL_HOME/conf/crail-site.conf`.
 
 The minimum configuration parameters required are the S3 credentials (s3accesskey, s3secretkey), endpoint(s) (s3endpoint), and Crail-S3 datanode IP address (datanode). 
 Other parameters that should be set in most cases include the storagelimit (how much data can be stored in the Crail Object Tier), the S3\_REGION and the S3\_BUCKET.
