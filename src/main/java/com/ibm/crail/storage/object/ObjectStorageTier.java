@@ -22,6 +22,8 @@ package com.ibm.crail.storage.object;
 import com.ibm.crail.storage.object.client.ObjectStoreDataNodeEndpoint;
 import com.ibm.crail.storage.object.client.ObjectStoreMetadataClientGroup;
 import com.ibm.crail.storage.object.server.ObjectStoreServer;
+import org.apache.crail.CrailBufferCache;
+import org.apache.crail.CrailStatistics;
 import org.apache.crail.conf.CrailConfiguration;
 import org.apache.crail.metadata.DataNodeInfo;
 import org.apache.crail.storage.StorageEndpoint;
@@ -39,12 +41,18 @@ public class ObjectStorageTier implements StorageTier {
 
 	private ObjectStoreMetadataClientGroup metadataClientGroup = null;
 	private ObjectStoreServer storageServer = null;
+	private boolean initialized = false;
+	private CrailStatistics statistics;
+	private CrailBufferCache bufferCache;
 
 	@Override
-	public void init(CrailConfiguration conf, String[] args) {
+	public void init(CrailStatistics stats, CrailBufferCache cache, CrailConfiguration conf, String[] args) {
 		LOG.debug("Initializing ObjectStorageTier");
 		ObjectStoreConstants.updateConstants(conf);
 		metadataClientGroup = new ObjectStoreMetadataClientGroup();
+		this.initialized = true;
+		this.statistics = statistics;
+		this.bufferCache = bufferCache;
 	}
 
 	@Override
